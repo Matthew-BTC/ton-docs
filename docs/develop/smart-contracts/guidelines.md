@@ -1,6 +1,6 @@
 # Overview
 
-This page collects some recommendations and best practices that could be followed when developing new smart contracts on TON Blockchain.
+This page collects recommendations and the best practices for developing new smart contracts on TON Blockchain.
 
 * [Internal messages](/develop/smart-contracts/guidelines/internal-messages)
 * [External messages](/develop/smart-contracts/guidelines/external-messages)
