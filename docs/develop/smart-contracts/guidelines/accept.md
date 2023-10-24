@@ -1,23 +1,23 @@
 # "accept_message" effects
 
-`accept_message` and `set_gas_limit` may cause not that straightforward effects when doing exactly what it's said in the [stdlib reference](/develop/func/stdlib#accept_message).
+`accept_message` and `set_gas_limit` may cause non-linear effects when doing precisely what is said in the [stdlib reference](/develop/func/stdlib#accept_message).
 
 ## External messages
 
 External messages are processed as follows: 
-- The `gas_limit` is set to `gas_credit` (ConfigParam 20 and ConfigParam 21), which is equal to 10k gas.
+- The `gas_limit` is set to `gas_credit` (ConfigParam 20 and ConfigParam 21), equal to 10k gas.
 - During the spending of those credits, a contract should call `accept_message` to `set_gas_limit`, indicating that it is ready to pay fees for message processing.
-- If `gas_credit` is reached or computation is finished, and `accept_message` is not called, the message will be completely discarded (as if it never existed at all).
-- Otherwise, a new gas limit, equal to `contract_balance/gas_price` (in the case of `accept_message`) or a custom number (in the case of `set_gas_limit`), will be set; after the transaction ends, full computation fees will be deducted from the contract balance (in this way, `gas_credit` is indeed **credit**, not free gas).
+- If `gas_credit` is reached or computation is finished, and `accept_message` is not called, the message will be discarded entirely (as if it never existed).
+- Otherwise, a new gas limit, equal to `contract_balance/gas_price` (in the case of `accept_message`) or a custom number (in the case of `set_gas_limit`), will be set; after the transaction ends, total computation fees will be deducted from the contract balance (in this way, `gas_credit` is indeed **credit**, not free gas).
 
 
-Note that if, after `accept_message`, some error is thrown (either in ComputePhase or ActionPhase), the transaction will be written to the blockchain, and fees will be deducted from the contract balance. However, storage will not be updated, and actions will not be applied, as is the case in any transaction with an error exit code. 
+If an error occurs (in ComputePhase or ActionPhase) after `accept_message`, the transaction will be recorded to the blockchain, and fees will be deducted from the contract balance. However, storage will not be updated, and actions will not be applied, as in any transaction with an error exit code.  
 
-As a result, if the contract accepts an external message and then throws an exception due to an error in the message data or the sending of an incorrectly serialized message, it will pay for processing but will have no way of preventing message replay. **The same message will be accepted by the contract over and over until it consumes the entire balance.**
+As a result, if the contract accepts an external message and then throws an exception due to an error in the message data or the sending of an incorrectly serialized message, it will pay for processing, but it will be unable to prevent message replay. **The same message will be accepted by the contract repeatedly until it consumes the entire balance.**
 
 
 
-## Internal message
+## Internal messages
 
 By default, when a contract receives an internal message, the gas limit is set to `message_balance`/`gas_price`. In other words, the message pays for its processing. By using `accept_message`/`set_gas_limit`, the contract may change the gas limit during execution. 
 
